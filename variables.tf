@@ -249,10 +249,10 @@ variable "proxy_configuration" {
   default     = null
 }
 
-variable "lifecycle" {
-  type        = list(string)
+variable "ignore_changes" {
+  type        = bool
   description = "Whether to ignore changes in container definition and task definition in the ECS service"
-  default     = []
+  default     = true
 }
 
 variable "assign_public_ip" {
