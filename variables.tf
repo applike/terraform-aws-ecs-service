@@ -4,6 +4,12 @@ variable "enabled" {
   default     = true
 }
 
+variable "enable_lb" {
+  type        = bool
+  description = "Set to false to prevent the module from creating any load balancer"
+  default     = false
+}
+
 variable "project" {
   type        = string
   description = "Project (e.g. `eg` or `cp`)"
@@ -48,6 +54,7 @@ variable "tags" {
 variable "vpc_id" {
   type        = string
   description = "The VPC ID where resources are created"
+  default     = ""
 }
 
 variable "alb_security_group" {
@@ -92,6 +99,7 @@ variable "nlb_container_port" {
 variable "subnet_ids" {
   type        = list(string)
   description = "Subnet IDs"
+  default     = []
 }
 
 variable "security_group_ids" {
@@ -148,7 +156,7 @@ variable "service_placement_constraints" {
 variable "network_mode" {
   type        = string
   description = "The network mode to use for the task. This is required to be `awsvpc` for `FARGATE` `launch_type`"
-  default     = "awsvpc"
+  default     = "bridge"
 }
 
 variable "task_cpu" {
@@ -241,10 +249,10 @@ variable "proxy_configuration" {
   default     = null
 }
 
-variable "ignore_changes_task_definition" {
-  type        = bool
+variable "lifecycle" {
+  type        = list(string)
   description = "Whether to ignore changes in container definition and task definition in the ECS service"
-  default     = true
+  default     = []
 }
 
 variable "assign_public_ip" {
