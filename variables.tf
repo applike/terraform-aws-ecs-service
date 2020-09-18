@@ -174,7 +174,7 @@ variable "task_memory" {
 variable "service_role_arn" {
   type        = string
   description = "The ARN of IAM role that allows your Amazon ECS service to make calls to other AWS services"
-  default     = ""
+  default     = false
 }
 
 variable "task_exec_role_arn" {
