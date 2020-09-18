@@ -69,7 +69,7 @@ module "ecs_service" {
 | security\_group\_ids | Security group IDs to allow in Service `network_configuration` | `list(string)` | `[]` | no |
 | service\_placement\_constraints | The rules that are taken into consideration during task placement. Maximum number of placement\_constraints is 10. See `placement_constraints` docs https://www.terraform.io/docs/providers/aws/r/ecs_service.html#placement_constraints-1 | <pre>list(object({<br>    type       = string<br>    expression = string<br>  }))</pre> | `[]` | no |
 | service\_registries | The service discovery registries for the service. The maximum number of service\_registries blocks is 1. The currently supported service registry is Amazon Route 53 Auto Naming Service - `aws_service_discovery_service`; see `service_registries` docs https://www.terraform.io/docs/providers/aws/r/ecs_service.html#service_registries-1 | <pre>list(object({<br>    registry_arn   = string<br>    port           = number<br>    container_name = string<br>    container_port = number<br>  }))</pre> | `[]` | no |
-| service\_role\_arn | The ARN of IAM role that allows your Amazon ECS service to make calls to other AWS services | `string` | `""` | no |
+| service\_role\_arn | The ARN of IAM role that allows your Amazon ECS service to make calls to other AWS services | `string` | `false` | no |
 | subnet\_ids | Subnet IDs | `list(string)` | `[]` | no |
 | tags | Additional tags (\_e.g.\_ { BusinessUnit : ABC }) | `map(string)` | `{}` | no |
 | task\_cpu | The number of CPU units used by the task. If using `FARGATE` launch type `task_cpu` must match supported memory values (https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task_definition_parameters.html#task_size) | `number` | `256` | no |
