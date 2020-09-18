@@ -141,7 +141,7 @@ data "aws_iam_policy_document" "ecs_service" {
 }
 
 resource "aws_iam_role" "ecs_service" {
-  count                = var.enabled && var.network_mode != "awsvpc" ? 1 : 0
+  count                = var.enabled && var.network_mode != "awsvpc" && length(var.service_role_arn) == 0 ? 1 : 0
   name                 = module.service_label.id
   assume_role_policy   = join("", data.aws_iam_policy_document.ecs_service.*.json)
   permissions_boundary = var.permissions_boundary == "" ? null : var.permissions_boundary
@@ -276,7 +276,7 @@ resource "aws_security_group_rule" "nlb" {
 
 resource "aws_ecs_service" "ignore_changes" {
   count                              = var.enabled && var.ignore_changes ? 1 : 0
-  name                               = module.default_label.id
+  name                               = module.default_label.application
   task_definition                    = "${join("", aws_ecs_task_definition.default.*.family)}:${join("", aws_ecs_task_definition.default.*.revision)}"
   desired_count                      = var.desired_count
   deployment_maximum_percent         = var.deployment_maximum_percent
@@ -286,7 +286,7 @@ resource "aws_ecs_service" "ignore_changes" {
   platform_version                   = var.launch_type == "FARGATE" ? var.platform_version : null
   scheduling_strategy                = var.launch_type == "FARGATE" ? "REPLICA" : var.scheduling_strategy
   enable_ecs_managed_tags            = var.enable_ecs_managed_tags
-  iam_role                           = var.network_mode != "awsvpc" ? join("", aws_iam_role.ecs_service.*.arn) : null
+  iam_role                           = length(var.service_role_arn) > 0 ? var.service_role_arn : var.network_mode != "awsvpc" ? join("", aws_iam_role.ecs_service.*.arn) : null
 
   dynamic "capacity_provider_strategy" {
     for_each = var.capacity_provider_strategies
@@ -358,7 +358,7 @@ resource "aws_ecs_service" "ignore_changes" {
 
 resource "aws_ecs_service" "default" {
   count                              = var.enabled && var.ignore_changes == false ? 1 : 0
-  name                               = module.default_label.id
+  name                               = module.default_label.application
   task_definition                    = "${join("", aws_ecs_task_definition.default.*.family)}:${join("", aws_ecs_task_definition.default.*.revision)}"
   desired_count                      = var.desired_count
   deployment_maximum_percent         = var.deployment_maximum_percent
@@ -368,7 +368,7 @@ resource "aws_ecs_service" "default" {
   platform_version                   = var.launch_type == "FARGATE" ? var.platform_version : null
   scheduling_strategy                = var.launch_type == "FARGATE" ? "REPLICA" : var.scheduling_strategy
   enable_ecs_managed_tags            = var.enable_ecs_managed_tags
-  iam_role                           = var.network_mode != "awsvpc" ? join("", aws_iam_role.ecs_service.*.arn) : null
+  iam_role                           = length(var.service_role_arn) > 0 ? var.service_role_arn : var.network_mode != "awsvpc" ? join("", aws_iam_role.ecs_service.*.arn) : null
 
   dynamic "capacity_provider_strategy" {
     for_each = var.capacity_provider_strategies
