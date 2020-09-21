@@ -50,6 +50,7 @@ module "ecs_service" {
 | enable\_ecs\_managed\_tags | Specifies whether to enable Amazon ECS managed tags for the tasks within the service | `bool` | `false` | no |
 | enable\_icmp\_rule | Specifies whether to enable ICMP on the security group | `bool` | `true` | no |
 | enable\_lb | Set to false to prevent the module from creating any load balancer | `bool` | `false` | no |
+| enable\_security\_group | Set to false to prevent the module from creating any security group | `bool` | `false` | no |
 | enabled | Set to false to prevent the module from creating any resources | `bool` | `true` | no |
 | environment | Environment, e.g. 'prod', 'staging', 'dev', 'pre-prod', 'UAT' | `string` | `""` | no |
 | family | Family (e.g. `prod`, `dev`, `staging`) | `string` | `""` | no |
