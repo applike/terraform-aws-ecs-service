@@ -277,7 +277,7 @@ resource "aws_security_group_rule" "nlb" {
 resource "aws_ecs_service" "ignore_changes" {
   count                              = var.enabled && var.ignore_changes ? 1 : 0
   name                               = module.default_label.application
-  task_definition                    = "${join("", aws_ecs_task_definition.default.*.family)}:${join("", aws_ecs_task_definition.default.*.revision)}"
+  task_definition                    = var.test
   desired_count                      = var.desired_count
   deployment_maximum_percent         = var.deployment_maximum_percent
   deployment_minimum_healthy_percent = var.deployment_minimum_healthy_percent
