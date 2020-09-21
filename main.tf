@@ -168,7 +168,7 @@ data "aws_iam_policy_document" "ecs_service_policy" {
 }
 
 resource "aws_iam_role_policy" "ecs_service" {
-  count  = var.enabled && var.network_mode != "awsvpc" ? 1 : 0
+  count  = var.enabled && length(var.task_role_arn) == 0 && length(var.task_exec_role_arn) == 0 && var.network_mode != "awsvpc" ? 1 : 0
   name   = module.service_label.id
   policy = join("", data.aws_iam_policy_document.ecs_service_policy.*.json)
   role   = join("", aws_iam_role.ecs_service.*.id)
@@ -226,7 +226,7 @@ resource "aws_iam_role_policy" "ecs_exec" {
 # Service
 ## Security Groups
 resource "aws_security_group" "ecs_service" {
-  count       = var.enabled && var.enable_lb ? 1 : 0
+  count       = var.enabled && var.enable_lb && var.enable_security_group ? 1 : 0
   vpc_id      = var.vpc_id
   name        = module.service_label.id
   description = "Allow ALL egress from ECS service"
@@ -234,7 +234,7 @@ resource "aws_security_group" "ecs_service" {
 }
 
 resource "aws_security_group_rule" "allow_all_egress" {
-  count             = var.enabled && var.enable_lb ? 1 : 0
+  count             = var.enabled && var.enable_lb && var.enable_security_group ? 1 : 0
   type              = "egress"
   from_port         = 0
   to_port           = 0
@@ -244,7 +244,7 @@ resource "aws_security_group_rule" "allow_all_egress" {
 }
 
 resource "aws_security_group_rule" "allow_icmp_ingress" {
-  count             = var.enabled && var.enable_icmp_rule && var.enable_lb ? 1 : 0
+  count             = var.enabled && var.enable_icmp_rule && var.enable_lb && var.enable_security_group ? 1 : 0
   description       = "Enables ping command from anywhere, see https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/security-group-rules-reference.html#sg-rules-ping"
   type              = "ingress"
   from_port         = 8
@@ -255,7 +255,7 @@ resource "aws_security_group_rule" "allow_icmp_ingress" {
 }
 
 resource "aws_security_group_rule" "alb" {
-  count                    = var.enabled && var.use_alb_security_group && var.enable_lb ? 1 : 0
+  count                    = var.enabled && var.use_alb_security_group && var.enable_lb && var.enable_security_group ? 1 : 0
   type                     = "ingress"
   from_port                = var.container_port
   to_port                  = var.container_port
@@ -265,7 +265,7 @@ resource "aws_security_group_rule" "alb" {
 }
 
 resource "aws_security_group_rule" "nlb" {
-  count             = var.enabled && var.use_nlb_cidr_blocks && var.enable_lb ? 1 : 0
+  count             = var.enabled && var.use_nlb_cidr_blocks && var.enable_lb && var.enable_security_group ? 1 : 0
   type              = "ingress"
   from_port         = var.nlb_container_port
   to_port           = var.nlb_container_port

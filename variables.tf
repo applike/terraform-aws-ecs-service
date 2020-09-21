@@ -10,6 +10,12 @@ variable "enable_lb" {
   default     = false
 }
 
+variable "enable_security_group" {
+  type        = bool
+  description = "Set to false to prevent the module from creating any security group"
+  default     = false
+}
+
 variable "project" {
   type        = string
   description = "Project (e.g. `eg` or `cp`)"
