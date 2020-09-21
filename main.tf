@@ -328,7 +328,6 @@ resource "aws_ecs_service" "ignore_changes" {
     content {
       container_name   = load_balancer.value.container_name
       container_port   = load_balancer.value.container_port
-      elb_name         = lookup(load_balancer.value, "elb_name", null)
       target_group_arn = lookup(load_balancer.value, "target_group_arn", null)
     }
   }
@@ -410,7 +409,6 @@ resource "aws_ecs_service" "default" {
     content {
       container_name   = load_balancer.value.container_name
       container_port   = load_balancer.value.container_port
-      elb_name         = lookup(load_balancer.value, "elb_name", null)
       target_group_arn = lookup(load_balancer.value, "target_group_arn", null)
     }
   }

@@ -72,7 +72,6 @@ variable "ecs_load_balancers" {
   type = list(object({
     container_name   = string
     container_port   = number
-    elb_name         = string
     target_group_arn = string
   }))
   description = "A list of load balancer config objects for the ECS service; see `load_balancer` docs https://www.terraform.io/docs/providers/aws/r/ecs_service.html"
