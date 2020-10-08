@@ -36,7 +36,6 @@ module "ecs_service" {
 | application | Name of the application | `string` | n/a | yes |
 | container\_definition\_json | A string containing a JSON-encoded array of container definitions (`"[{ "name": "container1", ... }, { "name": "container2", ... }]"`). See https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_ContainerDefinition.html, https://github.com/cloudposse/terraform-aws-ecs-container-definition, or https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecs_task_definition#container_definitions | `string` | n/a | yes |
 | ecs\_cluster\_arn | The ARN of the ECS cluster where service will be provisioned | `string` | n/a | yes |
-| test | n/a | `string` | n/a | yes |
 | alb\_security\_group | Security group of the ALB | `string` | `""` | no |
 | assign\_public\_ip | Assign a public IP address to the ENI (Fargate launch type only). Valid values are `true` or `false`. Default `false` | `bool` | `false` | no |
 | attributes | Additional attributes (\_e.g.\_ "1") | `list(string)` | `[]` | no |
@@ -56,7 +55,6 @@ module "ecs_service" {
 | environment | Environment, e.g. 'prod', 'staging', 'dev', 'pre-prod', 'UAT' | `string` | `""` | no |
 | family | Family (e.g. `prod`, `dev`, `staging`) | `string` | `""` | no |
 | health\_check\_grace\_period\_seconds | Seconds to ignore failing load balancer health checks on newly instantiated tasks to prevent premature shutdown, up to 7200. Only valid for services configured to use load balancers | `number` | `0` | no |
-| ignore\_changes | Whether to ignore changes in container definition and task definition in the ECS service | `bool` | `true` | no |
 | launch\_type | The launch type on which to run your service. Valid values are `EC2` and `FARGATE` | `string` | `"EC2"` | no |
 | network\_mode | The network mode to use for the task. This is required to be `awsvpc` for `FARGATE` `launch_type` | `string` | `"bridge"` | no |
 | nlb\_cidr\_blocks | A list of CIDR blocks to add to the ingress rule for the NLB container port | `list(string)` | `[]` | no |
