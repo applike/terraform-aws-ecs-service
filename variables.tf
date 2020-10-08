@@ -254,12 +254,6 @@ variable "proxy_configuration" {
   default     = null
 }
 
-variable "ignore_changes" {
-  type        = bool
-  description = "Whether to ignore changes in container definition and task definition in the ECS service"
-  default     = true
-}
-
 variable "assign_public_ip" {
   type        = bool
   description = "Assign a public IP address to the ENI (Fargate launch type only). Valid values are `true` or `false`. Default `false`"
@@ -333,8 +327,4 @@ variable "use_old_arn" {
   type        = bool
   description = "A flag to enable/disable tagging the ecs resources that require the new arn format"
   default     = false
-}
-
-variable "test" {
-  type = string
 }
