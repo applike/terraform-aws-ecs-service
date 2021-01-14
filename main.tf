@@ -287,6 +287,7 @@ resource "aws_ecs_service" "default" {
   scheduling_strategy                = var.launch_type == "FARGATE" ? "REPLICA" : var.scheduling_strategy
   enable_ecs_managed_tags            = var.enable_ecs_managed_tags
   iam_role                           = var.network_mode != "awsvpc" && length(var.task_role_arn) != 0 && length(var.task_exec_role_arn) != 0 ? join("", aws_iam_role.ecs_service.*.arn) : null
+  wait_for_steady_state              = var.wait_for_steady_state
 
   dynamic "capacity_provider_strategy" {
     for_each = var.capacity_provider_strategies
