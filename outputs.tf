@@ -13,6 +13,11 @@ output "service_name" {
   value       = join("", aws_ecs_service.default.*.name)
 }
 
+output "service_arn" {
+  description = "ECS Service ARN"
+  value       = join("", aws_ecs_service.default.*.id)
+}
+
 output "service_role_arn" {
   description = "ECS Service role ARN"
   value       = join("", aws_iam_role.ecs_service.*.arn)

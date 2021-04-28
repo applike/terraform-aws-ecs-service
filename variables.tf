@@ -1,62 +1,3 @@
-variable "enabled" {
-  type        = bool
-  description = "Set to false to prevent the module from creating any resources"
-  default     = true
-}
-
-variable "enable_lb" {
-  type        = bool
-  description = "Set to false to prevent the module from creating any load balancer"
-  default     = false
-}
-
-variable "enable_security_group" {
-  type        = bool
-  description = "Set to false to prevent the module from creating any security group"
-  default     = false
-}
-
-variable "project" {
-  type        = string
-  description = "Project (e.g. `eg` or `cp`)"
-  default     = ""
-}
-
-variable "environment" {
-  type        = string
-  description = "Environment, e.g. 'prod', 'staging', 'dev', 'pre-prod', 'UAT'"
-  default     = ""
-}
-
-variable "family" {
-  type        = string
-  description = "Family (e.g. `prod`, `dev`, `staging`)"
-  default     = ""
-}
-
-variable "application" {
-  type        = string
-  description = "Name of the application"
-}
-
-variable "delimiter" {
-  type        = string
-  default     = "-"
-  description = "Delimiter between `namespace`, `stage`, `name` and `attributes`"
-}
-
-variable "attributes" {
-  type        = list(string)
-  description = "Additional attributes (_e.g._ \"1\")"
-  default     = []
-}
-
-variable "tags" {
-  type        = map(string)
-  description = "Additional tags (_e.g._ { BusinessUnit : ABC })"
-  default     = {}
-}
-
 variable "vpc_id" {
   type        = string
   description = "The VPC ID where resources are created"
@@ -78,15 +19,22 @@ variable "ecs_load_balancers" {
   type = list(object({
     container_name   = string
     container_port   = number
+    elb_name         = optional(string)
     target_group_arn = string
   }))
-  description = "A list of load balancer config objects for the ECS service; see `load_balancer` docs https://www.terraform.io/docs/providers/aws/r/ecs_service.html"
+  description = "A list of load balancer config objects for the ECS service; see [ecs_service#load_balancer](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecs_service#load_balancer) docs"
   default     = []
 }
 
 variable "container_definition_json" {
   type        = string
-  description = "A string containing a JSON-encoded array of container definitions (`\"[{ \"name\": \"container1\", ... }, { \"name\": \"container2\", ... }]\"`). See https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_ContainerDefinition.html, https://github.com/cloudposse/terraform-aws-ecs-container-definition, or https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecs_task_definition#container_definitions"
+  description = <<-EOT
+    A string containing a JSON-encoded array of container definitions
+    (`"[{ "name": "container1", ... }, { "name": "container2", ... }]"`).
+    See [API_ContainerDefinition](https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_ContainerDefinition.html),
+    [cloudposse/terraform-aws-ecs-container-definition](https://github.com/cloudposse/terraform-aws-ecs-container-definition), or
+    [ecs_task_definition#container_definitions](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecs_task_definition#container_definitions)
+    EOT
 }
 
 variable "container_port" {
@@ -103,14 +51,20 @@ variable "nlb_container_port" {
 
 variable "subnet_ids" {
   type        = list(string)
-  description = "Subnet IDs"
-  default     = []
+  description = "Subnet IDs used in Service `network_configuration` if `var.network_mode = \"awsvpc\"`"
+  default     = null
 }
 
 variable "security_group_ids" {
-  description = "Security group IDs to allow in Service `network_configuration`"
+  description = "Security group IDs to allow in Service `network_configuration` if `var.network_mode = \"awsvpc\"`"
   type        = list(string)
   default     = []
+}
+
+variable "enable_all_egress_rule" {
+  type        = bool
+  description = "A flag to enable/disable adding the all ports egress rule to the ECS security group"
+  default     = false
 }
 
 variable "launch_type" {
@@ -121,14 +75,20 @@ variable "launch_type" {
 
 variable "platform_version" {
   type        = string
-  description = "The platform version on which to run your service. Only applicable for launch_type set to FARGATE. More information about Fargate platform versions can be found in the AWS ECS User Guide."
   default     = "LATEST"
+  description = <<-EOT
+    The platform version on which to run your service. Only applicable for `launch_type` set to `FARGATE`.
+    More information about Fargate platform versions can be found in the AWS ECS User Guide.
+    EOT
 }
 
 variable "scheduling_strategy" {
   type        = string
-  description = "The scheduling strategy to use for the service. The valid values are REPLICA and DAEMON. Note that Fargate tasks do not support the DAEMON scheduling strategy."
   default     = "REPLICA"
+  description = <<-EOT
+    The scheduling strategy to use for the service. The valid values are `REPLICA` and `DAEMON`.
+    Note that Fargate tasks do not support the DAEMON scheduling strategy.
+    EOT
 }
 
 variable "ordered_placement_strategy" {
@@ -136,8 +96,12 @@ variable "ordered_placement_strategy" {
     type  = string
     field = string
   }))
-  description = "Service level strategy rules that are taken into consideration during task placement. List from top to bottom in order of precedence. The maximum number of ordered_placement_strategy blocks is 5. See `ordered_placement_strategy` docs https://www.terraform.io/docs/providers/aws/r/ecs_service.html#ordered_placement_strategy-1"
   default     = []
+  description = <<-EOT
+    Service level strategy rules that are taken into consideration during task placement.
+    List from top to bottom in order of precedence. The maximum number of ordered_placement_strategy blocks is 5.
+    See [`ordered_placement_strategy`](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecs_service#ordered_placement_strategy)
+    EOT
 }
 
 variable "task_placement_constraints" {
@@ -145,8 +109,11 @@ variable "task_placement_constraints" {
     type       = string
     expression = string
   }))
-  description = "A set of placement constraints rules that are taken into consideration during task placement. Maximum number of placement_constraints is 10. See `placement_constraints` docs https://www.terraform.io/docs/providers/aws/r/ecs_task_definition.html#placement-constraints-arguments"
   default     = []
+  description = <<-EOT
+    A set of placement constraints rules that are taken into consideration during task placement.
+    Maximum number of placement_constraints is 10. See [`placement_constraints`](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecs_task_definition#placement-constraints-arguments)
+    EOT
 }
 
 variable "service_placement_constraints" {
@@ -154,14 +121,14 @@ variable "service_placement_constraints" {
     type       = string
     expression = string
   }))
-  description = "The rules that are taken into consideration during task placement. Maximum number of placement_constraints is 10. See `placement_constraints` docs https://www.terraform.io/docs/providers/aws/r/ecs_service.html#placement_constraints-1"
+  description = "The rules that are taken into consideration during task placement. Maximum number of placement_constraints is 10. See [`placement_constraints`](https://www.terraform.io/docs/providers/aws/r/ecs_service.html#placement_constraints-1) docs"
   default     = []
 }
 
 variable "network_mode" {
   type        = string
-  description = "The network mode to use for the task. This is required to be `awsvpc` for `FARGATE` `launch_type`"
-  default     = "bridge"
+  description = "The network mode to use for the task. This is required to be `awsvpc` for `FARGATE` `launch_type` or `null` for `EC2` `launch_type`"
+  default     = null
 }
 
 variable "task_cpu" {
@@ -182,10 +149,28 @@ variable "task_exec_role_arn" {
   default     = ""
 }
 
+variable "task_exec_policy_arns" {
+  type        = list(string)
+  description = "A list of IAM Policy ARNs to attach to the generated task execution role."
+  default     = []
+}
+
 variable "task_role_arn" {
   type        = string
   description = "The ARN of IAM role that allows your Amazon ECS container task to make calls to other AWS services"
   default     = ""
+}
+
+variable "task_policy_arns" {
+  type        = list(string)
+  description = "A list of IAM Policy ARNs to attach to the generated task role."
+  default     = []
+}
+
+variable "service_role_arn" {
+  type        = string
+  description = "ARN of the IAM role that allows Amazon ECS to make calls to your load balancer on your behalf. This parameter is required if you are using a load balancer with your service, but only if your task definition does not use the awsvpc network mode. If using awsvpc network mode, do not specify this role. If your account has already created the Amazon ECS service-linked role, that role is used by default for your service unless you specify a role here."
+  default     = null
 }
 
 variable "desired_count" {
@@ -275,7 +260,7 @@ variable "enable_ecs_managed_tags" {
 variable "enable_icmp_rule" {
   type        = bool
   description = "Specifies whether to enable ICMP on the security group"
-  default     = true
+  default     = false
 }
 
 variable "capacity_provider_strategies" {
@@ -331,6 +316,30 @@ variable "use_old_arn" {
 
 variable "wait_for_steady_state" {
   type        = bool
-  description = "If true, Terraform will wait for the service to reach a steady state (like aws ecs wait services-stable) before continuing"
+  description = "If true, it will wait for the service to reach a steady state (like aws ecs wait services-stable) before continuing"
   default     = true
+}
+
+variable "task_definition" {
+  type        = string
+  description = "Reuse an existing task definition family and revision for the ecs service instead of creating one"
+  default     = null
+}
+
+variable "force_new_deployment" {
+  type        = bool
+  description = "Enable to force a new task deployment of the service."
+  default     = false
+}
+
+variable "exec_enabled" {
+  type        = bool
+  description = "Specifies whether to enable Amazon ECS Exec for the tasks within the service"
+  default     = false
+}
+
+variable "enable_ecs_service_role" {
+  type        = bool
+  description = "Specifies whether to enable Amazon ECS service role"
+  default     = false
 }
