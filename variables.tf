@@ -1,6 +1,7 @@
 variable "vpc_id" {
   type        = string
   description = "The VPC ID where resources are created"
+  default     = ""
 }
 
 variable "alb_security_group" {
@@ -18,7 +19,7 @@ variable "ecs_load_balancers" {
   type = list(object({
     container_name   = string
     container_port   = number
-    elb_name         = string
+    elb_name         = optional(string)
     target_group_arn = string
   }))
   description = "A list of load balancer config objects for the ECS service; see [ecs_service#load_balancer](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ecs_service#load_balancer) docs"
@@ -63,13 +64,13 @@ variable "security_group_ids" {
 variable "enable_all_egress_rule" {
   type        = bool
   description = "A flag to enable/disable adding the all ports egress rule to the ECS security group"
-  default     = true
+  default     = false
 }
 
 variable "launch_type" {
   type        = string
   description = "The launch type on which to run your service. Valid values are `EC2` and `FARGATE`"
-  default     = "FARGATE"
+  default     = "EC2"
 }
 
 variable "platform_version" {
@@ -127,7 +128,7 @@ variable "service_placement_constraints" {
 variable "network_mode" {
   type        = string
   description = "The network mode to use for the task. This is required to be `awsvpc` for `FARGATE` `launch_type` or `null` for `EC2` `launch_type`"
-  default     = "awsvpc"
+  default     = null
 }
 
 variable "task_cpu" {
@@ -238,12 +239,6 @@ variable "proxy_configuration" {
   default     = null
 }
 
-variable "ignore_changes_task_definition" {
-  type        = bool
-  description = "Whether to ignore changes in container definition and task definition in the ECS service"
-  default     = true
-}
-
 variable "assign_public_ip" {
   type        = bool
   description = "Assign a public IP address to the ENI (Fargate launch type only). Valid values are `true` or `false`. Default `false`"
@@ -322,7 +317,7 @@ variable "use_old_arn" {
 variable "wait_for_steady_state" {
   type        = bool
   description = "If true, it will wait for the service to reach a steady state (like aws ecs wait services-stable) before continuing"
-  default     = false
+  default     = true
 }
 
 variable "task_definition" {
@@ -340,5 +335,11 @@ variable "force_new_deployment" {
 variable "exec_enabled" {
   type        = bool
   description = "Specifies whether to enable Amazon ECS Exec for the tasks within the service"
+  default     = false
+}
+
+variable "enable_ecs_service_role" {
+  type        = bool
+  description = "Specifies whether to enable Amazon ECS service role"
   default     = false
 }

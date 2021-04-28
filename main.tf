@@ -1,6 +1,6 @@
 locals {
   enabled                 = module.this.enabled
-  enable_ecs_service_role = module.this.enabled && var.network_mode != "awsvpc" && length(var.ecs_load_balancers) <= 1
+  enable_ecs_service_role = module.this.enabled && var.network_mode != "awsvpc" && length(var.ecs_load_balancers) <= 1 && var.enable_ecs_service_role
 }
 
 module "task_label" {
@@ -312,8 +312,8 @@ resource "aws_security_group_rule" "nlb" {
 }
 
 resource "aws_ecs_service" "default" {
-  count                              = local.enabled && var.ignore_changes_task_definition ? 1 : 0
-  name                               = module.this.id
+  count                              = local.enabled ? 1 : 0
+  name                               = module.this.application
   task_definition                    = coalesce(var.task_definition, "${join("", aws_ecs_task_definition.default.*.family)}:${join("", aws_ecs_task_definition.default.*.revision)}")
   desired_count                      = var.desired_count
   deployment_maximum_percent         = var.deployment_maximum_percent
