@@ -1,13 +1,7 @@
 variable "vpc_id" {
   type        = string
   description = "The VPC ID where resources are created"
-  default     = ""
-}
-
-variable "alb_security_group" {
-  type        = string
-  description = "Security group of the ALB"
-  default     = ""
+  default     = null
 }
 
 variable "ecs_cluster_arn" {
@@ -37,34 +31,61 @@ variable "container_definition_json" {
     EOT
 }
 
-variable "container_port" {
-  type        = number
-  description = "The port on the container to allow via the ingress security group"
-  default     = 80
-}
-
-variable "nlb_container_port" {
-  type        = number
-  description = "The port on the container to allow via the ingress security group"
-  default     = 80
-}
-
 variable "subnet_ids" {
   type        = list(string)
   description = "Subnet IDs used in Service `network_configuration` if `var.network_mode = \"awsvpc\"`"
   default     = null
 }
 
-variable "security_group_ids" {
-  description = "Security group IDs to allow in Service `network_configuration` if `var.network_mode = \"awsvpc\"`"
+variable "security_groups" {
   type        = list(string)
+  description = "A list of Security Group IDs to allow in Service `network_configuration` if `var.network_mode = \"awsvpc\"`"
   default     = []
 }
 
-variable "enable_all_egress_rule" {
+variable "security_group_enabled" {
   type        = bool
-  description = "A flag to enable/disable adding the all ports egress rule to the ECS security group"
+  description = "Whether to create default Security Group for ECS service."
   default     = false
+}
+
+variable "security_group_description" {
+  type        = string
+  default     = "ECS service Security Group"
+  description = "The Security Group description."
+}
+
+variable "security_group_use_name_prefix" {
+  type        = bool
+  default     = false
+  description = "Whether to create a default Security Group with unique name beginning with the normalized prefix."
+}
+
+variable "security_group_rules" {
+  type = list(any)
+  default = [
+    {
+      type        = "egress"
+      from_port   = 0
+      to_port     = 0
+      protocol    = -1
+      cidr_blocks = ["0.0.0.0/0"]
+      description = "Allow all outbound traffic"
+    },
+    {
+      type        = "ingress"
+      from_port   = 8
+      to_port     = 0
+      protocol    = "icmp"
+      cidr_blocks = ["0.0.0.0/0"]
+      description = "Enables ping command from anywhere, see https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/security-group-rules-reference.html#sg-rules-ping"
+    }
+  ]
+  description = <<-EOT
+    A list of maps of Security Group rules.
+    The values of map is fully complated with `aws_security_group_rule` resource.
+    To get more info see https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/security_group_rule .
+  EOT
 }
 
 variable "launch_type" {
@@ -284,24 +305,6 @@ variable "service_registries" {
   default     = []
 }
 
-variable "use_alb_security_group" {
-  type        = bool
-  description = "A flag to enable/disable adding the ingress rule to the ALB security group"
-  default     = false
-}
-
-variable "use_nlb_cidr_blocks" {
-  type        = bool
-  description = "A flag to enable/disable adding the NLB ingress rule to the security group"
-  default     = false
-}
-
-variable "nlb_cidr_blocks" {
-  type        = list(string)
-  description = "A list of CIDR blocks to add to the ingress rule for the NLB container port"
-  default     = []
-}
-
 variable "permissions_boundary" {
   type        = string
   description = "A permissions boundary ARN to apply to the 3 roles that are created."
@@ -338,7 +341,7 @@ variable "exec_enabled" {
   default     = false
 }
 
-variable "enable_ecs_service_role" {
+variable "ecs_service_role_enabled" {
   type        = bool
   description = "Specifies whether to enable Amazon ECS service role"
   default     = false
